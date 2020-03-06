@@ -1,5 +1,15 @@
 (ns lambdaisland.janus.data)
 
+(defn extract-version-components
+  "Extracts version-id, date and sha data from a given string"
+  [s]
+  (zipmap '(:version-id :date :hash)
+          (filter
+           (fn [x] (not (= x "")))
+           (-> s
+               (clojure.string/replace #"[#()/]" "")
+               (clojure.string/split #" ")))))
+
 (defrecord Changed
     [changes])
 
@@ -18,23 +28,53 @@
 (defprotocol DataBuilder
   "Contains the signatures needed to extract data from object obtained from external
   data parsing libraries"
-  (extract-version-id [node])
-  (extract-date       [node])
-  (extract-sha        [node])
-  (extract-changes    [node])
-  (extract-fixtures   [node])
-  (extract-additions  [node])
-  (build-item         [node])
-  (build-Changelog    [document]))
+  (extract-version-data [node])
+  (retrieve-component   [component node])
+  (extract-changes      [node])
+  (extract-fixtures     [node])
+  (extract-additions    [node])
+  (build-item           [node])
+  (build-changelog      [document]))
 
-(defn extract-simple-component
-  "Extracts version-id, date or sha data, depending on the value of s"
-  [s]
-  nil) ;; TODO
+(defrecord FlexmarkDataBuilder [document]
+  DataBuilder
+  (extract-version-data [node]
+    (-> node
+        (.getChars)
+        (.toString)
+        (extract-version-components)))
 
-(defn extract-sequential-component
-  "Extracts changes, fixtures or additions data, depending on the value of s"
-  [s]
-  nil) ;; TODO
+  (retrieve-component [component node]
+    (let [component-repr (str "# " component)]
+      (loop [aux-node node
+             result false]
+        (if (or (nil? aux-node) (= result true))
+          aux-node
+          (recur (.getNext aux-node) (= (.toString (.getChars aux-node)) component-repr))))))
 
-(comment (defrecord FlexmarkDataCollector [document]))
+  (extract-changes [node]
+    (if (not (nil? (retrive-component "Changed" node)))
+      nil ;; TODO
+      nil))
+
+  (extract-fixtures [node]
+    (if (not (nil? (retrive-component "Fixed" node)))
+      nil ;; TODO
+      nil))
+
+  (extract-additions [node]
+    (if (not (nil? (retrive-component "Added" node)))
+      nil ;; TODO
+      nil))
+
+  (build-item [node]
+    (let [version-data (extract-version-data node)]
+      (Item. (:version-id version-data)
+             (:date version-data)
+             (:sha version-data)
+             (Added. (extract-additions node))
+             (Fixed. (extract-fixtures  node))
+             (Changed. (extract-changes   node)))))
+
+  (build-changelog [document]
+    nil)) ;; TODO
