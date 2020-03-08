@@ -50,3 +50,6 @@ environment.
   :sha "71c2d86"
   :fixed ["Wait for websocket client namespace to load before attempting to connect. This should help in particular with reliability when running against a browser environment."]
   :changed ["Pick a free port for websockets automatically instead of using a hard-coded port"]}]
+
+
+REMEMBER WE CAN USE (iterable-seq (.iterator (NodeIterator))) to handle NodeIterator Structures
