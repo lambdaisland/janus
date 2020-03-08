@@ -45,12 +45,15 @@
         (extract-version-components)))
 
   (retrieve-component [component node]
-    (let [component-repr (str "# " component)]
+    (let [component-repr (str "## " component)]
       (loop [aux-node node
-             result false]
-        (if (or (nil? aux-node) (= result true))
+             found? false]
+        (if (or (nil? aux-node) (= found? true))
           aux-node
-          (recur (.getNext aux-node) (= (.toString (.getChars aux-node)) component-repr))))))
+          (let [shared-node (when (not (nil? aux-node)) (.getNext aux-node))]
+            (recur shared-node (if (not (nil? shared-node))
+                                 (= (.toString (.getChars shared-node)) component-repr)
+                                 false)))))))
 
   (extract-changes [node]
     (if (not (nil? (retrive-component "Changed" node)))
