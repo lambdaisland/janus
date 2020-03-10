@@ -1,16 +1,15 @@
 (ns lambdaisland.janus.parser
+  (:require [lambdaisland.janus.handler.flexmark :as flexmark])
   (:import com.vladsch.flexmark.parser.Parser))
 
 (defprotocol MarkdownParser
   "Contains the signature needed to parse markdown formatted strings using external
   markdown parsing libraries"
-  (markdown-to-parser [s])
-  (parser-to-janus [document]))
+  (parse [this]))
 
-(defrecord FlexmarkParser [s]
+(defrecord FlexmarkParser [text]
   MarkdownParser
-  (markdown-to-parser [s]
-    (let [parser (.build (Parser/builder))]
-      (.parse parser)))
-  (parser-to-janus [document] nil))
-;; TODO Implementation of parser-to-janus
+  (parse [this]
+    (let [parser (.build (Parser/builder))
+          document (.parse parser (:text this))]
+      (flexmark/build-changelog document))))
