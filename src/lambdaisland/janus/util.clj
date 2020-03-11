@@ -7,5 +7,5 @@
           (filter
            (fn [x] (not (= x "")))
            (-> s
-               (clojure.string/replace #"[#()/]" "")
+               (clojure.string/replace #"[#\n()/]" "")
                (clojure.string/split #" ")))))

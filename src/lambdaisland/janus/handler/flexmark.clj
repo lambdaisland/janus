@@ -1,5 +1,7 @@
-(ns lambdaisland.janus.flexmark
-  (:require [lambdaisland.janus.util :as util]))
+(ns lambdaisland.janus.handler.flexmark
+  (:require [lambdaisland.janus.util :as util])
+  (:import [com.vladsch.flexmark.ast Heading]
+           [com.vladsch.flexmark.ast BulletList]))
 
 (defn extract-version-data [node]
   (-> node
@@ -23,11 +25,11 @@
         aux-node
         (let [shared-node (when (not (nil? aux-node)) (.getNext aux-node))]
           (recur shared-node (if (not (nil? shared-node))
-                               (= (.toString (.getChars shared-node)) tag-repr)
+                               (= (object-to-text shared-node) tag-repr)
                                false)))))))
 
 (defn extract-list [tag node]
-  (let [component (when (not (nil? (retrive-component tag node))))
+  (let [component (retrieve-component tag node)
         bullet-list
         (if (nil? component)
           (list)
@@ -35,7 +37,7 @@
     (if (and (not (nil? bullet-list))
              (= (type bullet-list) com.vladsch.flexmark.ast.BulletList))
       (map (fn [x] (object-to-text x))
-           (iterator-seq (.iterator (.getChildren (bullet-list)))))
+           (iterator-seq (.iterator (.getChildren bullet-list))))
       (list))))
 
 (defn extract-changes [node]
@@ -45,19 +47,22 @@
   (extract-list "Fixed" node))
 
 (defn extract-additions [node]
-  (extract-list "Added"))
+  (extract-list "Added" node))
 
 (defn build-item [node]
   (let [version-data (extract-version-data node)]
-    {:version-id version-data
-     :date       version-data
-     :sha        version-data
+    {:version-id (:version-id version-data)
+     :date       (:date version-data)
+     :sha        (:hash version-data)
      :added      (extract-additions node)
      :fixed      (extract-fixtures  node)
      :changed    (extract-changes node)}))
 
+(defn clean-item [item]
+  (into {} (filter #(not (nil? (val %))) item)))
+
 (defn build-changelog [document]
   (let [version-list (filter
                       (fn [x] (is-version? x))
-                      (iterator-seq (.iterator document)))]
-    (map (fn [x] (build-item x)) version-list)))
+                      (iterator-seq (.iterator (.getChildren document))))]
+    (map (fn [x] (clean-item (build-item x))) version-list)))
