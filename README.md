@@ -1,29 +1,12 @@
 # janus
 
-A Clojure library designed to ... well, that part is up to you.
+<!-- badges -->
+[![CircleCI](https://circleci.com/gh/lambdaisland/janus.svg?style=svg)](https://circleci.com/gh/lambdaisland/janus) [![cljdoc badge](https://cljdoc.org/badge/lambdaisland/janus)](https://cljdoc.org/d/lambdaisland/janus) [![Clojars Project](https://img.shields.io/clojars/v/lambdaisland/janus.svg)](https://clojars.org/lambdaisland/janus)
+<!-- /badges -->
 
-## Usage
+A parser for CHANGELOG files in the format used by Lambda Island Open Source projects.
 
-FIXME
-
-## License
-
-Copyright © 2020 FIXME
-
-This program and the accompanying materials are made available under the
-terms of the Eclipse Public License 2.0 which is available at
-http://www.eclipse.org/legal/epl-2.0.
-
-This Source Code may also be made available under the following Secondary
-Licenses when the conditions for such availability set forth in the Eclipse
-Public License, v. 2.0 are satisfied: GNU General Public License as published by
-the Free Software Foundation, either version 2 of the License, or (at your
-option) any later version, with the GNU Classpath Exception which is available
-at https://www.gnu.org/software/classpath/license.html.
-
-
-Example  THIS WILL BE REMOVED
-
+``` clojure
 (parse "# Unreleased
 ## Added
 ## Fixed
@@ -50,6 +33,10 @@ environment.
   :sha "71c2d86"
   :fixed ["Wait for websocket client namespace to load before attempting to connect. This should help in particular with reliability when running against a browser environment."]
   :changed ["Pick a free port for websockets automatically instead of using a hard-coded port"]}]
+```
 
+## License
 
-REMEMBER WE CAN USE (iterable-seq (.iterator (NodeIterator))) to handle NodeIterator Structures
+Copyright &copy; 2020 Enyert Vinas and Contributors
+
+Licensed under the term of the Mozilla Public License 2.0, see LICENSE.
