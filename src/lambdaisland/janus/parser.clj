@@ -16,11 +16,6 @@
    (= (type node) com.vladsch.flexmark.ast.Heading)
    (= (.getLevel node) 1))) ;; In CHANGELOG domain everything with "# " or level 1 heading is version info
 
-(defn is-segment? [node]
-  (and
-   (= (type node) com.vladsch.flexmark.ast.Heading)
-   (= (.getLevel node) 2)))
-
 (defn object-to-text [node]
   (.toString (.getChars node)))
 
@@ -30,7 +25,8 @@
            found? false]
       (if (or (nil? aux-node) (= found? true))
         aux-node
-        (let [shared-node (when (and (not (nil? aux-node)) (is-segment? (.getNext aux-node)))
+        (let [shared-node (when (and (not (nil? aux-node))
+                                     (not (is-version? (.getNext aux-node))))
                             (.getNext aux-node))]
           (recur shared-node (if (not (nil? shared-node))
                                (= (object-to-text shared-node) tag-repr)
