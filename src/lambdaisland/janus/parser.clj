@@ -22,7 +22,7 @@
    (= (type node) com.vladsch.flexmark.ast.Heading)
    (= (.getLevel node) 1))) ;; In CHANGELOG domain everything with "# " or level 1 heading is version info
 
-(defn object-to-text
+(defn- object-to-text
   [^Block node]
   (.toString (.getChars node)))
 
