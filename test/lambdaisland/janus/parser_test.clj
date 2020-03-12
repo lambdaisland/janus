@@ -73,3 +73,15 @@
            (build-changelog empty-changelog-document)))
     (is (= '()
            (build-changelog nil-changelog-document)))))
+
+(deftest build-item-test
+  (let [test-node (nth (iterator-seq (.iterator (.getChildren optimistic-changelog-document))) 4)
+        expected-item {:version-id "0.0-71",
+                       :date "2020-02-24",
+                       :sha "773860f",
+                       :added '(),
+                       :fixed '("- Depend on an actual version of Glogi, instead or \"RELEASE\"\n"),
+                       :changed '()}]
+    (testing "Node with data"
+      (is (= expected-item
+             (build-item test-node))))))
