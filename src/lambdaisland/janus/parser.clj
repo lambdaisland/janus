@@ -1,9 +1,11 @@
 (ns lambdaisland.janus.parser
   (:require [lambdaisland.janus.util :as util])
-  (:import [com.vladsch.flexmark.ast Heading]
-           [com.vladsch.flexmark.ast BulletList]
-           [com.vladsch.flexmark.ast BulletListItem]
-           [com.vladsch.flexmark.parser Parser]))
+  (:import [com.vladsch.flexmark.ast.Heading]
+           [com.vladsch.flexmark.ast.BulletList]
+           [com.vladsch.flexmark.ast.BulletListItem]
+           [com.vladsch.flexmark.parser.Parser]))
+
+(set! *warn-on-reflection* true)
 
 (defn extract-version-data [node]
   (-> node
