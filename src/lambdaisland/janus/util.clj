@@ -9,3 +9,9 @@
            (-> s
                (clojure.string/replace #"[#\n()/]" "")
                (clojure.string/split #" ")))))
+
+(defn clean-item [item]
+  (into {} (filter #(not (nil? (val %))) item)))
+
+(defn transform-to-list [iterable-node]
+  (iterator-seq (.iterator iterable-node)))
