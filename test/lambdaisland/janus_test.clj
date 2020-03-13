@@ -1,6 +1,6 @@
-(ns lambdaisland.janus.parser-test
+(ns lambdaisland.janus-test
   (:require [clojure.test :refer :all]
-            [lambdaisland.janus.parser :refer :all])
+            [lambdaisland.janus :refer :all])
   (:import [com.vladsch.flexmark.parser Parser]))
 
 (def test-parser (.build (Parser/builder)))
@@ -56,22 +56,16 @@
 
 ;; Expected Results
 (def optimistic-changelog-expected-result
-  '({:version-id "Unreleased",
-     :added (),
-     :fixed (),
-     :changed ()}
+  '({:version-id "Unreleased"}
     {:version-id "0.0-71",
      :date "2020-02-24",
      :sha "773860f",
-     :added (),
-     :fixed ("- Depend on an actual version of Glogi, instead or \"RELEASE\"\n"),
-     :changed ()}
+     :fixed ["Depend on an actual version of Glogi, instead or \"RELEASE\"\n"]}
     {:version-id "0.0-68",
      :date "2019-12-25",
      :sha "71c2d86",
-     :added (),
-     :fixed ("- Wait for websocket client namespace to load before attempting to connect. This\n  should help in particular with reliability when running against a browser\n  environment.\n"),
-     :changed ("- Pick a free port for websockets automatically instead of using a hard-coded port\n")}))
+     :fixed ["Wait for websocket client namespace to load before attempting to connect. This\n  should help in particular with reliability when running against a browser\n  environment.\n"],
+     :changed ["Pick a free port for websockets automatically instead of using a hard-coded port\n"]}))
 
 ;; Test definitions
 (deftest parse-test
@@ -99,61 +93,25 @@
         expected-item {:version-id "0.0-71",
                        :date "2020-02-24",
                        :sha "773860f",
-                       :added '(),
-                       :fixed '("- Depend on an actual version of Glogi, instead or \"RELEASE\"\n"),
-                       :changed '()}]
+                       :added nil,
+                       :fixed ["Depend on an actual version of Glogi, instead or \"RELEASE\"\n"],
+                       :changed nil}]
     (testing "Node with data"
       (is (= expected-item
              (build-item test-node))))))
 
-(deftest extract-changes-test
-  (let [node-list (iterator-seq (.iterator (.getChildren optimistic-changelog-document)))
-        test-node-with-changes (nth node-list  9)
-        test-node-without-changes (nth node-list 0)
-        expected-changes '("- Pick a free port for websockets automatically instead of using a hard-coded port\n")]
-    (testing "Node with additions"
-      (is (= expected-changes
-             (extract-changes test-node-with-changes))))
-    (testing "Node without additions"
-      (is (= '()
-             (extract-changes test-node-without-changes))))))
-
-(deftest extract-fixtures-test
-  (let [node-list (iterator-seq (.iterator (.getChildren optimistic-changelog-document)))
-        test-node-with-fixtures (nth node-list  4)
-        test-node-without-fixtures (nth node-list 0)
-        expected-fixtures '("- Depend on an actual version of Glogi, instead or \"RELEASE\"\n")]
-    (testing "Node with fixtures"
-      (is (= expected-fixtures
-             (extract-fixtures test-node-with-fixtures))))
-    (testing "Node without fixtures"
-      (is (= '()
-             (extract-fixtures test-node-without-fixtures))))))
-
-(deftest extract-additions-test
-  (let [node-list (iterator-seq (.iterator (.getChildren optimistic-changelog-with-added-document)))
-        test-node-with-additions (nth node-list  4)
-        test-node-without-additions (nth node-list 0)
-        expected-additions '("- Added point for testing purposes\n")]
-    (testing "Node with additions"
-      (is (= expected-additions
-             (extract-additions test-node-with-additions))))
-    (testing "Node without additions"
-      (is (= '()
-             (extract-additions test-node-without-additions))))))
-
 (deftest extract-list-test
   (let [node-list (iterator-seq (.iterator (.getChildren optimistic-changelog-document)))]
     (testing "Edge case parameters"
-      (is (= '()
+      (is (= nil
              (extract-list nil (nth node-list 4))))
-      (is (= '()
+      (is (= nil
              (extract-list "Fixed" nil))))
     (testing "Existing tag with no info"
-      (is (= '()
+      (is (= nil
              (extract-list "Added" (nth node-list 0)))))
     (testing "Existing tag with info"
-      (is (= '("- Depend on an actual version of Glogi, instead or \"RELEASE\"\n")
+      (is (= ["Depend on an actual version of Glogi, instead or \"RELEASE\"\n"]
              (extract-list "Fixed" (nth node-list 4)))))))
 
 (deftest retrieve-component-test
@@ -187,5 +145,44 @@
     (testing "Node with complete data"
       (is (= {:version-id "0.0-71",
               :date "2020-02-24",
-              :hash "773860f"}
+              :sha "773860f"}
              (extract-version-data (nth node-list 4)))))))
+
+(deftest extract-version-components-test
+  (testing "Correct version"
+    (is (= {:version-id "0.0-601"
+            :date "2020-03-11"
+            :sha "6b88d96"}
+           (extract-version-components "# 0.0-601 (2020-03-11 / 6b88d96)"))))
+  (testing "Empty version"
+    (is (= nil
+           (extract-version-components "# "))))
+  (testing "Partial version"
+    (is (= {:version-id "0.0-601"}
+           (extract-version-components "# 0.0-601 ( / )")))
+    (is (= {:version-id "0.0-601"
+            :date "2020-03-11"}
+           (extract-version-components "# 0.0-601 (2020-03-11 / )")))))
+
+(deftest remove-nil-vals-test
+  (testing "No nil values"
+    (is (= {:key1 "a"
+            :key2 "b"
+            :key3 "c"}
+           (remove-nil-vals {:key1 "a"
+                             :key2 "b"
+                             :key3 "c"}))))
+  (testing "All nil values"
+    (is (= {}
+           (remove-nil-vals {:key1 nil
+                             :key2 nil
+                             :key3 nil}))))
+  (testing "Some nil values"
+    (is (= {:key1 "a" :key3 "c"}
+           (remove-nil-vals {:key1 "a"
+                             :key2 nil
+                             :key3 "c"})))
+    (is (= {:key2 "b"}
+           (remove-nil-vals {:key1 nil
+                             :key2 "b"
+                             :key3 nil})))))
