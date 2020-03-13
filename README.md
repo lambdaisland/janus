@@ -6,8 +6,6 @@
 
 A parser for CHANGELOG files in the format used by Lambda Island Open Source projects.
 
-<<<<<<< HEAD
-=======
 <!-- opencollective -->
 ### Support Lambda Island Open Source
 
@@ -16,7 +14,6 @@ If you find value in our work please consider [becoming a backer on Open Collect
 
 ## Usage
 
->>>>>>> feature-markdown-parser
 ``` clojure
 (parse "# Unreleased
 ## Added
@@ -47,12 +44,6 @@ environment.
  {:version "0.0-68"
   :date "2019-12-25"
   :sha "71c2d86"
-<<<<<<< HEAD
-  :fixed ["Wait for websocket client namespace to load before attempting to connect. This should help in particular with reliability when running against a browser environment."]
-  :changed ["Pick a free port for websockets automatically instead of using a hard-coded port"]}]
-```
-
-=======
   :added ()
   :fixed ("Wait for websocket client namespace to load before attempting to connect. This should help in particular with reliability when running against a browser environment.")
   :changed ("Pick a free port for websockets automatically instead of using a hard-coded port")})
@@ -91,7 +82,6 @@ we may still consider making breaking changes, if there is consensus that the
 changes are justified.
 <!-- /contributing -->
 
->>>>>>> feature-markdown-parser
 ## License
 
 Copyright &copy; 2020 Enyert Vinas and Contributors
