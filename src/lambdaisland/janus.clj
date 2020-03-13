@@ -1,8 +1,8 @@
 (ns lambdaisland.janus
+  (:require [clojure.string :as str])
   (:import [com.vladsch.flexmark.ast Heading BulletList BulletListItem]
            [com.vladsch.flexmark.parser Parser]
-           [com.vladsch.flexmark.util.ast Block Node])
-  (:require [clojure.string :as str]))
+           [com.vladsch.flexmark.util.ast Block Node]))
 
 (set! *warn-on-reflection* true)
 
