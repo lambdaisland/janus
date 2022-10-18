@@ -1,8 +1,8 @@
 (ns lambdaisland.janus
   (:require [clojure.string :as str])
-  (:import [com.vladsch.flexmark.ast Heading BulletList BulletListItem]
-           [com.vladsch.flexmark.parser Parser]
-           [com.vladsch.flexmark.util.ast Block Node]))
+  (:import (com.vladsch.flexmark.ast Heading BulletList BulletListItem)
+           (com.vladsch.flexmark.parser Parser)
+           (com.vladsch.flexmark.util.ast Block Node)))
 
 (set! *warn-on-reflection* true)
 
@@ -19,7 +19,6 @@
   e.g. \"0.0-601 (2020-03-11 / 6b88d96)\""
   [s]
   (when-let [[_ version date sha] (re-find #"#\s+([^ ]+)(?:\s+\(([0-9-]+)?(?:[ /]+([a-f0-9]+)?)?\))?" s)]
-    #_(prn sha)
     (cond-> {:version-id version}
       date (assoc :date date)
       sha  (assoc :sha sha))))
